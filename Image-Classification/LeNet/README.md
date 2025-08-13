@@ -20,7 +20,7 @@
 - epochs: 总训练次数
 - lr: 学习率
 - data: 数据集选择，可选('mnist', 'cifar10')
-- result_path: 模型保存路径，默认('./result)
+- result_path: 模型保存路径，默认('./result')
 
 ### 训练过程中产生的中间文件夹
 
