@@ -34,11 +34,11 @@
 1. 使用配置文件运行(config.yml)
 `python train.py --config config.yml`
 2. 使用命令行配置
-`python train.py --batch_size=64 --epochs=20 --lr=0.001 --data='mnist' --result_data='./result'`
+`python train.py --batch_size=64 --epochs=20 --lr=0.001 --data='mnist' --result_path='./result'`
 
 - 可视化脚本
 
 1. 使用配置文件运行(config.yml)
 `python visualize.py --config config.yml`
 2. 使用命令行配置
-`python visualize.py --batch_size=64 --epochs=20 --lr=0.001 --data='mnist' --result_data='./result'`
+`python visualize.py --batch_size=64 --epochs=20 --lr=0.001 --data='mnist' --result_path='./result'`
