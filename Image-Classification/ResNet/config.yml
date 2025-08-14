@@ -1,0 +1,6 @@
+batch_size: 64
+epochs: 50
+lr: 0.001
+data: cifar10
+model: resnet18
+result_path: ./result
