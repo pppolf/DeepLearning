@@ -74,7 +74,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, num_blocks[3],stride=2)
         self.fc = nn.Sequential(
             nn.Linear(512 * block.expansion*7*7, num_classes),
-            nn.Softmax(dim=-1)
+            # nn.Softmax(dim=-1)
         )
 
     def forward(self, x):

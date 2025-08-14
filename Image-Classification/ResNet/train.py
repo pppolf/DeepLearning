@@ -5,6 +5,7 @@ import argparse
 import yaml
 from dataset.mnist import get_mnist_loader
 from dataset.cifar10 import get_cifar10_loader
+from dataset.cifar100 import get_cifar100_loader
 from tqdm import tqdm
 import os
 import sys
@@ -25,6 +26,8 @@ def get_loader(config):
         return get_mnist_loader(config['batch_size'])
     elif config['data'] == 'cifar10':
         return get_cifar10_loader(config['batch_size'])
+    elif config['data'] == 'cifar100':
+        return get_cifar100_loader(config['batch_size'])
 
 # 训练过程
 def train(model, loader, optimizer, criterion, epoch, epochs):
@@ -38,8 +41,11 @@ def train(model, loader, optimizer, criterion, epoch, epochs):
     '''
     model.train()
     total_loss = 0
+    correct_train = 0
+    total_train = 0
     # 使用 tqdm 显示训练进度条
-    for input, labels in tqdm(loader, desc=f"Epoch {epoch}/{epochs}"):
+    pbar = tqdm(loader, desc=f"Epoch {epoch}/{epochs}")
+    for input, labels in pbar:
         input, labels = input.to(device), labels.to(device)
 
         optimizer.zero_grad()
@@ -49,12 +55,19 @@ def train(model, loader, optimizer, criterion, epoch, epochs):
         optimizer.step()
 
         total_loss += loss.item()
+        correct_train += (output.argmax(1) == labels).sum().item()
+        total_train += labels.size(0)
+
+        pbar.set_postfix({
+            "loss": loss.item(),
+            "acc": 100 * correct_train / total_train if total_train else 0
+        })
 
     avg_loss = total_loss / len(loader)
     print(f"Epoch {epoch}, Train Loss: {avg_loss:.4f}")
 
 # 测试过程
-def test(model, loader):
+def test(model, loader, criterion, epoch, epochs):
     '''
     model: 模型
     loader: 数据加载器
@@ -63,12 +76,18 @@ def test(model, loader):
     correct = 0
     total = 0
     with torch.no_grad():
-        for input, labels in loader:
+        pbar = tqdm(loader, desc=f"Epoch {epoch}/{epochs}")
+        for input, labels in pbar:
             input, labels = input.to(device), labels.to(device)
             output = model(input)
             pred = output.argmax(dim=1)
             correct += (pred == labels).sum().item()
             total += labels.size(0)
+            loss = criterion(output, labels)
+            pbar.set_postfix({
+                "loss": loss.item(),
+                "acc": 100 * correct / total if total else 0
+            })
     acc = correct / total
     print(f"Test Accuracy: {acc * 100:.2f}%")
     return acc
@@ -88,7 +107,7 @@ def main(config):
     epochs = config['epochs']
     for epoch in range(1, epochs+1):
         train(model, train_loader, optimizer, criterion, epoch, epochs)
-        acc = test(model, test_loader)
+        acc = test(model, test_loader, criterion, epoch, epochs)
         if acc > best_acc:
             best_acc = acc
             torch.save(model.state_dict(), f"{RESULT_PATH}/{config['model']}_{config['data']}.pth")
