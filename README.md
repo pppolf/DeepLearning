@@ -14,4 +14,5 @@
 
 ## 目录分类
 
-- Image-Classification: 图像分类模型
+- Image-Classification: 图像分类模型(LeNet, ResNet)
+- SequenceModeling: 时序建模(RNN, LSTM, Transformer)
