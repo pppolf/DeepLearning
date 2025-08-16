@@ -37,6 +37,7 @@ if __name__=="__main__":
         model.train()
         loop = tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}")
         acc = 0
+        tot_loss = 0
         for index,(en_in,de_in,de_label) in enumerate(loop):
             en_in,de_in,de_label = en_in.to(device),de_in.to(device),de_label.to(device)
             outputs = model(en_in,de_in)
@@ -50,18 +51,24 @@ if __name__=="__main__":
             d_label_ = de_label.reshape(-1)
             train_loss = loss_fun(outputs_,d_label_)
 
+            tot_loss += train_loss.item()
+
             optimizer.zero_grad()
             train_loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(),1)
             optimizer.step()
             loop.set_postfix(loss=train_loss.item(),acc=f"{100*acc:.2f}%")
+        
+        avg_loss = tot_loss / len(train_loader)
 
-        print(f"iter:{index}/{len(train_loader)} train loss = {train_loss.item()} acc = {100*acc:.2f}%")
+        print(f"Epoch:{epoch}/{epochs} train loss = {avg_loss:.4f} acc = {100*acc:.2f}%")
         
         torch.save(model.state_dict(),"model.pth")
         print("successfully save model!")
         model.eval()
         with torch.no_grad():
+            tot_loss = 0
+            acc = 0
             for index,(en_in,de_in,de_label) in enumerate(test_loader):
                 en_in,de_in,de_label = en_in.to(device),de_in.to(device),de_label.to(device)
                 outputs = model(en_in,de_in)
@@ -74,6 +81,8 @@ if __name__=="__main__":
                 outputs_ = outputs.reshape(-1,outputs.shape[-1])
                 d_label_ = de_label.reshape(-1)
                 test_loss = loss_fun(outputs_,d_label_)
+                tot_loss += test_loss.item()
+            avg_loss = tot_loss / len(test_loader)
 
-                print(f"iter:{index}/{len(test_loader)} test loss = {test_loss.item()} acc = {acc}")
+            print(f"Epoch:{epoch}/{epochs} test loss = {avg_loss:.4f} acc = {100*acc:.2f}%")
                 

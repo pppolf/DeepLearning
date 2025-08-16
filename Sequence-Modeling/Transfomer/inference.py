@@ -4,15 +4,17 @@ import torch.utils
 from model import Transformer
 from transformers import AutoTokenizer
 import os
+from opencc import OpenCC
 
 if __name__=="__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained("./tokenizer")
     tokenizer.add_special_tokens({"bos_token":"<s>"})
 
+    cc = OpenCC('t2s')  # 't2s' 表示 Traditional to Simplified
+
     src_vocab_size,dst_vocab_size = tokenizer.vocab_size+len(tokenizer.special_tokens_map),tokenizer.vocab_size+len(tokenizer.special_tokens_map)
     pad_idx=tokenizer.pad_token_id
-    print(pad_idx)
     d_model=512
     num_layes=6
     heads=8
@@ -28,10 +30,9 @@ if __name__=="__main__":
         model.load_state_dict(torch.load("./model.pth"))
     
     ################## 你输入的英文 ##############
-    input_ = "I am Tom."
+    input_ = "you love me."
     
     input_in = tokenizer(input_,padding="max_length",max_length = max_seq_len,truncation=True,return_tensors="pt")["input_ids"]
-    print(input_in.shape)
     input_in = input_in.to(device)
 
     de_in = torch.ones(batch_size,max_seq_len,dtype=torch.long).to(device) * pad_idx
@@ -49,5 +50,6 @@ if __name__=="__main__":
     for i in de_in[0]:
         if i==tokenizer.eos_token_id:
             break
-        out.append(tokenizer.decode(i))
-    print(out)
+        out.append(cc.convert(tokenizer.decode(i)))
+    print(f"您输入的英文是：{input_}")
+    print('翻译的结果是：'+''.join(out[1:]))
