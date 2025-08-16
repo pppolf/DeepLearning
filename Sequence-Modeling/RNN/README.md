@@ -6,11 +6,29 @@
 
 > 给定一段文本，判断其情感是正面、负面（或中性）。
 
-- 数据集：IMDb 电影评论情感分类（二分类）下载地址：[Kaggle数据集](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews/data)
-- 使用基础 RNN 模型，训练 20 轮，数据集划分 80% 训练集、20% 测试集。
-- 最好测试集 ACC=72.83%
+- 数据集：IMDb 电影评论情感分类（二分类）下载地址：[Kaggle数据集](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews/data), 数据集可以在 `./data/IMDB Dataset.csv` 找到
+- 使用基础 $\rm RNN$ 模型，训练 $20$ 轮，数据集划分 $80\%$ 训练集、$20\%$ 测试集。
+- 最好测试集 $\rm ACC=72.83\%$
 - AI生成几句英文进行预测该句的情感极性
 - 具体 Demo 可在 `./rnn_imdb.ipynb` 找到
 
 ### 时间序列预测
-  - 数据集：
+
+> 给定一段具有时间周期的序列，使用 RNN 预测以后的数据
+
+- 数据集：每天的温度变化情况，数据集可以在 `./data/daily-min-temperatures.csv` 找到
+- 使用 $\rm RNN$ 模型，训练 $30$ 轮，数据集划分 前 $80\%$ 训练集、后 $20\%$ 测试集。
+- 最后结果如下：
+  - $R^2=0.7125$, 解释度，越接近 $1$ 说明模型越好，负值说明模型很差
+  - $MSE=4.8318$, 误差平方的平均，值越小越好
+  - $RMSE=2.1981$, $\rm MSE$ 开根号，和原数据单位一致，更直观
+  - $MAE=1.7338$, 平均绝对误差，反映平均偏差
+- 具体 Demo 可在 `./rnn_temperature.ipynb` 找到
+
+### 自回归语言模型
+
+> 给定一些单词，模型会自动补全之后的内容。
+
+- 数据集：ptb.train.txt 里面是由许多字符串组成的文件，模型将学习这些句子，以便最后推理输出
+- 使用 $\rm RNN$ 模型，训练 $5$ 轮，数据集划分 $90\%$ 训练集、$10\%$ 测试集
+- 最后的结果如 Demo `./rnn_ptb.ipynb` 所示
